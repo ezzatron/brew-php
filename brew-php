@@ -11,6 +11,9 @@ set -e
 #:    `brew php help`
 #:    Outputs this usage information
 #:
+#:    `brew php install <package> [...]`
+#:    Link a PHP package (e.g. php53, php72)
+#:
 #:    `brew php installed`
 #:    Output the currently installed PHP packages
 #:
@@ -45,6 +48,17 @@ extension_installed_command() {
     return $RESULT
 }
 
+install_command() {
+    local OLD_LINKED="$(linked_command)"
+
+    unlink_package "$OLD_LINKED"
+    brew install "$@"
+
+    local NEW_LINKED="$(linked_command)"
+    unlink_package "$NEW_LINKED"
+    link_package "$OLD_LINKED"
+}
+
 installed_command() {
     local PACKAGE
     local RESULT=1
@@ -72,9 +86,7 @@ link_command() {
         return
     fi
 
-    if [[ -n "$LINKED" ]]; then
-        brew unlink "$LINKED"
-    fi
+    unlink_package "$LINKED"
 
     brew link "$1"
 }
@@ -89,7 +101,7 @@ linked_command() {
         return 1
     fi
 
-    local LINK_TARGET="$(resolve_link "$PHP_LINK")"
+    local LINK_TARGET="$(resolve_symlink "$PHP_LINK")"
 
     if [[ "${LINK_TARGET:0:$BREW_CELLAR_LENGTH}" != "$BREW_CELLAR" ]]; then
         (>&2 echo "$PHP_LINK is a symlink, but it does not point to the Homebrew cellar.")
@@ -102,8 +114,20 @@ linked_command() {
     echo "$PACKAGE"
 }
 
+link_package() {
+    if [[ -n "$1" ]]; then
+        brew link "$1"
+    fi
+}
+
+unlink_package() {
+    if [[ -n "$1" ]]; then
+        brew unlink "$1"
+    fi
+}
+
 # based on https://stackoverflow.com/a/1116890/736156
-resolve_link() {
+resolve_symlink() {
     local TARGET_FILE="$1"
 
     cd "$(dirname $TARGET_FILE)"
@@ -123,10 +147,12 @@ if [[ "$1" == "extension" && "$2" == "installed" ]]; then
     extension_installed_command
 elif [[ "$1" == "help" ]]; then
     help_command
+elif [[ "$1" == "install" && -n "$2" ]]; then
+    install_command "${@:2}"
 elif [[ "$1" == "installed" ]]; then
     installed_command
 elif [[ "$1" == "link" && -n "$2" ]]; then
-    link_command "$2"
+    link_command "${@:2}"
 elif [[ "$1" == "linked" ]]; then
     linked_command
 else
