@@ -5,11 +5,17 @@ set -e
 #:  * `php`
 #:    Manage multiple PHP installations
 #:
+#:    `brew php` `help`
+#:    Outputs this usage information
+#:
+#:    `brew php` `installed`
+#:    Output the currently installed PHP packages
+#:
 #:    `brew php` `link` <package>
-#:    Link the supplied package (e.g. php53, php72)
+#:    Link a PHP package (e.g. php53, php72)
 #:
 #:    `brew php` `linked`
-#:    Output the currently linked php package
+#:    Output the currently linked PHP package
 
 BREW_PREFIX="$(brew --prefix)"
 BREW_BIN="$BREW_PREFIX/bin"
@@ -18,8 +24,26 @@ BREW_CELLAR_LENGTH="${#BREW_CELLAR}"
 
 PHP_LINK="$BREW_BIN/php"
 
+help_command() {
+    brew php --help
+}
+
+installed_command() {
+    local PACKAGE
+    local RESULT=1
+
+    for PACKAGE in $(brew list); do
+        if [[ "$PACKAGE" =~ ^php[0-9]+$ ]]; then
+            echo "$PACKAGE"
+            RESULT=0
+        fi
+    done
+
+    return $RESULT
+}
+
 link_command() {
-    if [[ -z "$(brew ls --versions "$1")" ]]; then
+    if [[ -z "$(brew list --versions "$1")" ]]; then
         (>&2 echo "$1 is not installed.")
         return 1
     fi
@@ -58,10 +82,6 @@ linked_command() {
     echo "$PACKAGE"
 }
 
-help_command() {
-    brew php --help
-}
-
 # based on https://stackoverflow.com/a/1116890/736156
 resolve_link() {
     local TARGET_FILE="$1"
@@ -79,7 +99,11 @@ resolve_link() {
     echo "$REAL_DIR/$TARGET_FILE"
 }
 
-if [[ "$1" == "link" && -n "$2" ]]; then
+if [[ "$1" == "help" ]]; then
+    help_command
+elif [[ "$1" == "installed" ]]; then
+    installed_command
+elif [[ "$1" == "link" && -n "$2" ]]; then
     link_command "$2"
 elif [[ "$1" == "linked" ]]; then
     linked_command
