@@ -4,6 +4,9 @@
 brew php
     Manage multiple PHP installations
 
+    brew php extension installed
+    Output the currently installed PHP extension packages
+
     brew php help
     Outputs this usage information
 
