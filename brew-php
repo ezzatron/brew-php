@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+
+set -e
+
+#:  * `php`
+#:    Manage multiple PHP installations
+#:
+#:    `brew php` `link` <package>
+#:    Link the supplied package (e.g. php53, php72)
+#:
+#:    `brew php` `linked`
+#:    Output the currently linked php package
+
+BREW_PREFIX="$(brew --prefix)"
+BREW_BIN="$BREW_PREFIX/bin"
+BREW_CELLAR="$(brew --cellar)"
+BREW_CELLAR_LENGTH="${#BREW_CELLAR}"
+
+PHP_LINK="$BREW_BIN/php"
+
+link_command() {
+    if [[ -z "$(brew ls --versions "$1")" ]]; then
+        (>&2 echo "$1 is not installed.")
+        return 1
+    fi
+
+    local LINKED="$(linked_command)"
+
+    if [[ "$1" == "$LINKED" ]]; then
+        echo "$1 is already linked."
+        return
+    fi
+
+    brew unlink "$LINKED"
+    brew link "$1"
+}
+
+linked_command() {
+    if [[ ! -e "$PHP_LINK" ]]; then
+        return
+    fi
+
+    if [[ ! -h "$PHP_LINK" ]]; then
+        (>&2 echo "$PHP_LINK exists, but it is not a symlink.")
+        return 1
+    fi
+
+    local LINK_TARGET="$(resolve_link "$PHP_LINK")"
+
+    if [[ "${LINK_TARGET:0:$BREW_CELLAR_LENGTH}" != "$BREW_CELLAR" ]]; then
+        (>&2 echo "$PHP_LINK is a symlink, but it does not point to the Homebrew cellar.")
+        return 1
+    fi
+
+    local PACKAGE="${LINK_TARGET#$BREW_CELLAR/}"
+    PACKAGE="${PACKAGE%%/*}"
+
+    echo "$PACKAGE"
+}
+
+help_command() {
+    brew php --help
+}
+
+# based on https://stackoverflow.com/a/1116890/736156
+resolve_link() {
+    local TARGET_FILE="$1"
+
+    cd "$(dirname $TARGET_FILE)"
+    TARGET_FILE="$(basename $TARGET_FILE)"
+
+    while [ -L "$TARGET_FILE" ]; do
+        TARGET_FILE="$(readlink $TARGET_FILE)"
+        cd "$(dirname $TARGET_FILE)"
+        TARGET_FILE="$(basename $TARGET_FILE)"
+    done
+
+    local REAL_DIR="$(pwd -P)"
+    echo "$REAL_DIR/$TARGET_FILE"
+}
+
+if [[ "$1" == "link" && -n "$2" ]]; then
+    link_command "$2"
+elif [[ "$1" == "linked" ]]; then
+    linked_command
+else
+    help_command
+fi
