@@ -4,9 +4,15 @@
 brew php
     Manage multiple PHP installations
 
+    brew php help
+    Outputs this usage information
+
+    brew php installed
+    Output the currently installed PHP packages
+
     brew php link package
-    Link the supplied package (e.g. php53, php72)
+    Link a PHP package (e.g. php53, php72)
 
     brew php linked
-    Output the currently linked php package
+    Output the currently linked PHP package
 ```
