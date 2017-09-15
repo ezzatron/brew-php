@@ -72,7 +72,10 @@ link_command() {
         return
     fi
 
-    brew unlink "$LINKED"
+    if [[ -n "$LINKED" ]]; then
+        brew unlink "$LINKED"
+    fi
+
     brew link "$1"
 }
 
