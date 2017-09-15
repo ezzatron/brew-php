@@ -5,9 +5,6 @@ set -e
 #:  * `php`
 #:    Manage multiple PHP installations
 #:
-#:    `brew php extension installed`
-#:    Output the currently installed PHP extension packages
-#:
 #:    `brew php help`
 #:    Outputs this usage information
 #:
@@ -32,20 +29,6 @@ PHP_LINK="$BREW_BIN/php"
 
 help_command() {
     brew php --help
-}
-
-extension_installed_command() {
-    local PACKAGE
-    local RESULT=1
-
-    for PACKAGE in $(brew list); do
-        if [[ "$PACKAGE" =~ ^php[0-9]+- ]]; then
-            echo "$PACKAGE"
-            RESULT=0
-        fi
-    done
-
-    return $RESULT
 }
 
 install_command() {
@@ -143,9 +126,7 @@ resolve_symlink() {
     echo "$REAL_DIR/$TARGET_FILE"
 }
 
-if [[ "$1" == "extension" && "$2" == "installed" ]]; then
-    extension_installed_command
-elif [[ "$1" == "help" ]]; then
+if [[ "$1" == "help" ]]; then
     help_command
 elif [[ "$1" == "install" && -n "$2" ]]; then
     install_command "${@:2}"
