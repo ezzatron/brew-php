@@ -8,17 +8,20 @@ set -e
 #:    `brew php help`
 #:    Outputs this usage information
 #:
-#:    `brew php install <package> [...]`
-#:    Link a PHP package (e.g. php53, php72)
+#:    `brew php install [...]`
+#:    Unlink the current PHP package, install a package, then restore the linked PHP package
 #:
 #:    `brew php installed`
 #:    Output the currently installed PHP packages
 #:
 #:    `brew php link` <package>
-#:    Link a PHP package (e.g. php53, php72)
+#:    Unlink the current PHP package, then link the requested package
 #:
 #:    `brew php linked`
 #:    Output the currently linked PHP package
+#:
+#:    `brew php upgrade [...]`
+#:    Unlink the current PHP package, perform an upgrade, then restore the linked PHP package
 
 BREW_PREFIX="$(brew --prefix)"
 BREW_BIN="$BREW_PREFIX/bin"
@@ -70,8 +73,7 @@ link_command() {
     fi
 
     unlink_package "$LINKED"
-
-    brew link "$1"
+    link_package "$1"
 }
 
 linked_command() {
@@ -95,6 +97,17 @@ linked_command() {
     PACKAGE="${PACKAGE%%/*}"
 
     echo "$PACKAGE"
+}
+
+upgrade_command() {
+    local OLD_LINKED="$(linked_command)"
+
+    unlink_package "$OLD_LINKED"
+    brew upgrade "$@"
+
+    local NEW_LINKED="$(linked_command)"
+    unlink_package "$NEW_LINKED"
+    link_package "$OLD_LINKED"
 }
 
 link_package() {
@@ -128,7 +141,7 @@ resolve_symlink() {
 
 if [[ "$1" == "help" ]]; then
     help_command
-elif [[ "$1" == "install" && -n "$2" ]]; then
+elif [[ "$1" == "install" ]]; then
     install_command "${@:2}"
 elif [[ "$1" == "installed" ]]; then
     installed_command
@@ -136,6 +149,8 @@ elif [[ "$1" == "link" && -n "$2" ]]; then
     link_command "${@:2}"
 elif [[ "$1" == "linked" ]]; then
     linked_command
+elif [[ "$1" == "upgrade" ]]; then
+    upgrade_command "${@:2}"
 else
     help_command
 fi
