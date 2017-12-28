@@ -1,0 +1,12 @@
+language: generic
+script: echo Nothing to test.
+deploy:
+  provider: releases
+  api_key: $GITHUB_TOKEN
+  file: brew-php
+  skip_cleanup: true
+  on:
+    tags: true
+env:
+  global:
+    secure: qF10h7YgYPOl/8v9Dkvf8biuBRwJqwpAEdA5mGDgObyg9eZdybfAjsy+qyRK2dP6HzJSDRU7fp+B6U66rMYKjXBCtLTzmoK4EGXFNN5Jqh2kdM5fstK2744ywwajg1UxwZZIFm8HeQpWpRiVLwmg5bPEpLiYPKkqZ41Ui8P6X+vx7C8xEiY8BGBI+90ZARW6Oi5g9KzfH97oO3bI1v4jgNqbnsKzd36iGcUpXKpFGLL+wc3ni3eSLYWE+YA+tHUiGzkTrLKa+XD5coxFHmXmTdMEHSRcfWQHe5voTKub1RRxGAR22PVBRpvu3nWFRcWRhTlmkBu5S5nQHqAaWRnDwR4TzFe5FTtmk20dsYwax3So3F4IQhvJ4HwGqmZtFt6uIuzVbTAvKLBkgRg4QFvdeve+VFl19JxZSsoZzLzPbkCgJllYP9X7T0aKBRMR5n5ZEN1oq6w2LSy6A3IAThI1mBPB2v0qZjopU1XAwRCLXfheMcHhmrnumdIMjIZIvQHtRD4rLhKRw09joxVLPCpbx+nUp274gpbVaBsFCJiFk9SK48sTc6c1TalNAm8ekeR8ElwFz/a5X2zuUTj/IKJ4McBp0LF6x6SZ0465i1M9AxnW0F6X6eTQwqYx1EqS+XsbmJJD3nY5M8e48Apb7FZo+3BalpTNkOG2DQ0zq2MtCfA=
