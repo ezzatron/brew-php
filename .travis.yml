@@ -1,8 +1,11 @@
 language: generic
+before_deploy: tar -czvf brew-php.tar.gz brew-php
 deploy:
   provider: releases
   api_key: $GITHUB_TOKEN
-  file: brew-php
+  file:
+  - brew-php
+  - brew-php.tar.gz
   skip_cleanup: true
   on:
     tags: true
