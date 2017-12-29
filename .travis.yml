@@ -1,5 +1,4 @@
 language: generic
-script: echo Nothing to test.
 deploy:
   provider: releases
   api_key: $GITHUB_TOKEN
