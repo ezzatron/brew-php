@@ -112,7 +112,7 @@ upgrade_command() {
 
 link_package() {
     if [[ -n "$1" ]]; then
-        brew link "$1"
+        brew link --force "$1"
     fi
 }
 
