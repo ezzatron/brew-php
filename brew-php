@@ -38,11 +38,15 @@ install_command() {
     local OLD_LINKED="$(linked_command)"
 
     unlink_package "$OLD_LINKED"
-    brew install "$@"
+
+    local EXIT_CODE=0
+    brew install "$@" || EXIT_CODE=$?
 
     local NEW_LINKED="$(linked_command)"
     unlink_package "$NEW_LINKED"
     link_package "$OLD_LINKED"
+
+    exit $EXIT_CODE
 }
 
 installed_command() {
@@ -103,11 +107,15 @@ upgrade_command() {
     local OLD_LINKED="$(linked_command)"
 
     unlink_package "$OLD_LINKED"
-    brew upgrade "$@"
+
+    local EXIT_CODE=0
+    brew upgrade "$@" || EXIT_CODE=$?
 
     local NEW_LINKED="$(linked_command)"
     unlink_package "$NEW_LINKED"
     link_package "$OLD_LINKED"
+
+    exit $EXIT_CODE
 }
 
 link_package() {
